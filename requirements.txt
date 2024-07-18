@@ -1,1 +1,4 @@
 termcolor==2.4.0
+selenium
+beautifulsoup4
+

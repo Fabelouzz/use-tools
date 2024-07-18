@@ -3,7 +3,8 @@ import json
 import os
 from utils.get_keys import load_config
 
-config_path = os.path.join(os.path.dirname(__file__), '..', 'configs', 'config.yaml')
+config_path = os.path.join(os.path.dirname(__file__), '..', 'configs', 'config.yaml') # Path to config file 
+# the path is formated to be compatible with all operating systems
 load_config(config_path)
 
 class OpenAIModel:
@@ -23,19 +24,20 @@ class OpenAIModel:
     def generate_text(self, prompt):
 
         payload = {
-                    "model": self.model,
-                    "response_format": {"type": "json_object"},
+                    "model": self.model,#"gpt-3.5-turbo",
+                    "response_format": {"type": "json_object"}, # response format is used to specify the type of response we want from the model
                     "messages": [
                         {
-                            "role": "system",
-                            "content": self.system_prompt
+                            "role": "system", # the role is used to specify the role of the message, either system or user
+                            "content": self.system_prompt # the system prompt is used to provide context to the model
                         },
                         {
-                            "role": "user",
-                            "content": prompt
+                            "role": "user", # the role is used to specify the role of the message, either system or user
+                            "content": prompt # the user prompt is the input to the model
                         }
                     ],
-                    "stream": False,
+                    "stream": False, # the stream parameter is used to specify if the response should be streamed or not
+                    
                     "temperature": self.temperature,
                 }
         
@@ -45,4 +47,4 @@ class OpenAIModel:
 
         print(F"\n\nResponse from OpenAI model: {response}")
 
-        return response
+        return response 

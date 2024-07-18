@@ -4,6 +4,9 @@ from models.openai_models import OpenAIModel
 from models.ollama_models import OllamaModel
 from tools.basic_calculator import basic_calculator
 from tools.reverser import reverse_string
+from tools.bitcoin_stats import bitcoin_stats
+from tools.crypto_api import crypto_stats
+from tools.pricerunner_tool import get_cheapest_option
 from toolbox.toolbox import ToolBox
 
 
@@ -29,8 +32,8 @@ class Agent:
         Returns:
         str: Descriptions of the tools stored in the toolbox.
         """
-        toolbox = ToolBox()
-        toolbox.store(self.tools)
+        toolbox = ToolBox() # Create an instance of the toolbox, 
+        toolbox.store(self.tools) # store the tools in the toolbox
         tool_descriptions = toolbox.tools()
         return tool_descriptions
 
@@ -44,8 +47,10 @@ class Agent:
         Returns:
         dict: The response from the model as a dictionary.
         """
-        tool_descriptions = self.prepare_tools()
-        agent_system_prompt = agent_system_prompt_template.format(tool_descriptions=tool_descriptions)
+        tool_descriptions = self.prepare_tools() # Get the descriptions of the tools
+        agent_system_prompt = agent_system_prompt_template.format(
+            tool_descriptions=tool_descriptions # Insert the tool descriptions into the system prompt template
+        )
 
         # Create an instance of the model service with the system prompt
 
@@ -54,13 +59,11 @@ class Agent:
                 model=self.model_name,
                 system_prompt=agent_system_prompt,
                 temperature=0,
-                stop=self.stop
+                stop=self.stop,
             )
         else:
-            model_instance = self.model_service(
-                model=self.model_name,
-                system_prompt=agent_system_prompt,
-                temperature=0
+            model_instance = self.model_service( # Create an instance of the model service by passing the model name and system prompt
+                model=self.model_name, system_prompt=agent_system_prompt, temperature=0
             )
 
         # Generate and return the response dictionary
@@ -85,36 +88,37 @@ class Agent:
             if tool.__name__ == tool_choice:
                 response = tool(tool_input)
 
-                print(colored(response, 'cyan'))
+                print(colored(response, "cyan"))
                 return
                 # return tool(tool_input)
 
-        print(colored(tool_input, 'cyan'))
-        
+        print(colored(tool_input, "cyan"))
+
         return
 
 
 # Example usage
 if __name__ == "__main__":
 
-    tools = [basic_calculator, reverse_string]
-
+    tools = [basic_calculator, reverse_string, bitcoin_stats, crypto_stats, get_cheapest_option]
 
     # Uncoment below to run with OpenAI
-    # model_service = OpenAIModel
-    # model_name = 'gpt-3.5-turbo'
-    # stop = None
+    model_service = OpenAIModel
+    model_name = "gpt-4o"
+    stop = None
 
     # Uncomment below to run with Ollama
-    model_service = OllamaModel
-    model_name = 'llama3:instruct'
-    stop = "<|eot_id|>"
+    # model_service = OllamaModel
+    # model_name = 'llama3:instruct'
+    # stop = "<|eot_id|>"
 
-    agent = Agent(tools=tools, model_service=model_service, model_name=model_name, stop=stop)
+    agent = Agent(
+        tools=tools, model_service=model_service, model_name=model_name, stop=stop
+    )
 
     while True:
         prompt = input("Ask me anything: ")
         if prompt.lower() == "exit":
             break
-    
+
         agent.work(prompt)
